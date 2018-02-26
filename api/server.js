@@ -1,33 +1,22 @@
 const Koa = require('koa');
 const Router = require('koa-router');
 const bodyParser = require('koa-bodyparser');
+const QueueService = require('./src/queue-service');
 
 const app = new Koa();
 const router = new Router();
 
-// TODO: use MongoDB
-const queue = [];
-let count = 0;
+const queueService = new QueueService();
 
 router.get('/queue', (ctx, next) => {
   const showAll = Boolean(ctx.request.query.showAll);
-  let filteredQueue = queue;
-
-  if (!showAll) {
-    filteredQueue = queue.filter(token => token.active);
-  }
+  const filteredQueue = queueService.getQueue(showAll);
 
   ctx.body = filteredQueue;
 });
 
 router.post('/queue/token', (ctx, next) => {
-  const token = {
-    id: ++count,
-    date: new Date(),
-    active: true
-  };
-
-  queue.push(token);
+  const token = queueService.createToken();
 
   ctx.body = token;
 });
@@ -37,9 +26,7 @@ router.post('/queue/actions', (ctx, next) => {
 
   switch (action) {
     case 'next':
-      const firstToken = queue.find(token => token.active);
-
-      firstToken.active = false;
+      const firstToken = queueService.next();
       ctx.body = firstToken;
       break
     default:
@@ -51,17 +38,14 @@ router.post('/queue/actions', (ctx, next) => {
 
 router.delete('/queue/token/:id', (ctx, next) => {
   const id = parseInt(ctx.params.id, 10);
-  const tokenIndex = queue.findIndex(token => token.id === id);
 
-  if (tokenIndex === -1) {
-    ctx.status = 404;
-    ctx.body = 'Token not found';
-    return;
+  try {
+    token = queueService.deleteToken(id);
+    ctx.body = token;
+  } catch (error) {
+    ctx.status = 400; // TODO: handle each error correctly
+    ctx.body = error.message;
   }
-
-  const [token] = queue.splice(tokenIndex, 1);
-
-  ctx.body = token;
 });
 
 app
