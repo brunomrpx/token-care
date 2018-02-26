@@ -10,7 +10,14 @@ const queue = [];
 let count = 0;
 
 router.get('/queue', (ctx, next) => {
-  ctx.body = queue;
+  const showAll = Boolean(ctx.request.query.showAll);
+  let filteredQueue = queue;
+
+  if (!showAll) {
+    filteredQueue = queue.filter(token => token.active);
+  }
+
+  ctx.body = filteredQueue;
 });
 
 router.post('/queue/token', (ctx, next) => {
