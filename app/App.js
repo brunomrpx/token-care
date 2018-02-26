@@ -1,89 +1,93 @@
 import React from 'react';
-import { Button, View, StyleSheet, Text } from 'react-native';
+import { View, AsyncStorage, ActivityIndicator } from 'react-native';
+import SocketIOClient from 'socket.io-client';
+
+import { themeStyle } from './src/themeStyle';
+import { Queue } from './src/Queue';
+import { MyToken } from './src/MyToken';
+import { NewToken } from './src/NewToken';
+
+const socketUrl = process.env.SOCKET_URL;
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      current: null,
-      next: null,
-      generated: null
+      loading: true,
+      queue: [],
+      myToken: null
     };
+
+    this.socket = SocketIOClient(socketUrl, {
+      transports: ['websocket']
+    });
+
+    this.socket.on('connect', () => this.setState({ loading: false }));
+    this.socket.on('token-created', token => this.saveMyToken(token));
+    this.socket.on('token-revoked', () => this.deleteMyToken());
+    this.socket.on('queue-updated', queue => this.updateQueue(queue));
+
+    this.restoreState();
   }
 
-  generateNewToken() {
-    const generated = +new Date(); // TODO: call service
+  async restoreState() {
+    const myToken = JSON.parse(await AsyncStorage.getItem('myToken'));
 
-    this.setState({ generated });
+    this.setState({ myToken });
   }
 
-  revokeToken() {
+  emitCreateToken() {
+    this.socket.emit('create-token');
+  }
+
+  emitRevokeToken() {
+    this.socket.emit('revoke-token', this.state.myToken);
+  }
+
+  updateQueue(queue) {
+    this.setState({ queue });
+  }
+
+  deleteMyToken() {
     const state = this.state;
-    delete state.generated;
-
-    // TODO: call service
+    delete state.myToken;
 
     this.setState(state);
+
+    AsyncStorage.removeItem('myToken');
   }
 
-  render() {
-    let contentView = (
-      <View style={[themeStyle.btn, themeStyle.newTokenBtn]}>
-        <Button title={'New Token'} color={'white'} onPress={() => this.generateNewToken()} />
-      </View>
-    );
+  saveMyToken(myToken) {
+    AsyncStorage.setItem('myToken', JSON.stringify(myToken));
 
-    if (this.state.generated) {
-      contentView = (
-        <View style={{ width: '100%' }}>
-          <Text style={themeStyle.yourToken}>Your token is: {this.state.generated}</Text>
-          <View style={[themeStyle.btn, themeStyle.revokeTokenBtn]}>
-            <Button title={'Revoke Token'} style={{ fontSize: 20 }} color={'white'} onPress={() => this.revokeToken()} />
-          </View>
-        </View>
-      );
+    this.setState({ myToken });
+  }
+
+  getContentView() {
+    let actionView = <NewToken onNewToken={() => this.emitCreateToken()} />;
+
+    if (this.state.myToken) {
+      actionView = <MyToken token={this.state.myToken} onRevokeToken={() => this.emitRevokeToken()} />;
     }
 
     return (
-      <View style={themeStyle.mainContainer}>
-        {contentView}
+      <View style={{ width: '100%' }}>
+        { actionView }
         <View style={themeStyle.tokenQueueContainer}>
-          <Text>Current: {this.state.current || 'Unavailable'}</Text>
-          <Text>Next: {this.state.next || 'Unavailable'}</Text>
+          <Queue queue={this.state.queue} />
         </View>
+      </View>
+    );
+  }
+
+  render() {
+    let loadingView = <ActivityIndicator></ActivityIndicator>;
+
+    return (
+      <View style={themeStyle.mainContainer}>
+        {this.state.loading ? loadingView : this.getContentView()}
       </View>
     );
   }
 }
-
-const themeStyle = StyleSheet.create({
-  mainContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'column',
-    marginHorizontal: 20
-  },
-  btn: {
-    borderRadius: 5,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    width: '100%'
-  },
-  newTokenBtn: {
-    backgroundColor: '#008CFF'
-  },
-  revokeTokenBtn: {
-    backgroundColor: '#FF3333',
-  },
-  yourToken: {
-    fontSize: 30, 
-    textAlign: 'center',
-    marginBottom: 20
-  },
-  tokenQueueContainer: {
-    marginRight: 'auto',
-    marginVertical: 20
-  }
-});
