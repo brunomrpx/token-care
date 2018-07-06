@@ -16,7 +16,7 @@ class QueueService {
   getQueue(showAll = true) {
     let queue = this.queue;
 
-    if (showAll) {
+    if (!showAll) {
       queue = queue.filter(token => token.active);
     }
 
@@ -25,6 +25,10 @@ class QueueService {
 
   next() {
     const firstToken = this.queue.find(token => token.active);
+
+    if (!firstToken) {
+      return null;
+    }
 
     firstToken.active = false;
 
