@@ -8,7 +8,9 @@ class App extends Component {
     super(props);
 
     this.state = {
-      queue: []
+      queue: [],
+      finished: [],
+      selected: []
     };
 
     this.socket = io.connect('http://localhost:3000');
@@ -17,9 +19,9 @@ class App extends Component {
     this.socket.on('queue-updated', queue => this.updateQueue(queue));
   }
 
-  updateQueue(queue) {
-    console.log('-> update queue: ', queue);
-    this.setState({ queue });
+  updateQueue(structure) {
+    console.log('-> update queue: ', structure);
+    this.setState({ ...structure });
   }
 
   createToken() {
@@ -30,13 +32,16 @@ class App extends Component {
     this.socket.emit('next-token');
   }
 
+  finishToken(token) {
+    this.socket.emit('finish-token', token.id);
+  }
+
   getRows(queue) {
     if (queue && queue.length > 0) {
       return queue.map(token => (
         <tr key={token.id}>
           <td>{token.id}</td>
-          <td>{token.date}</td>
-          <td>{token.active ? 'Active' : 'Inactive'}</td>
+          <td>{token.createDate}</td>
         </tr>
       ));
     }
@@ -48,16 +53,22 @@ class App extends Component {
     );
   }
 
-  showActiveToken(token) {
-    if (token && token.active) {
-      return <div>{token.date} - {token.id}</div>;
+  showSelectedTokens(tokens) {
+    if (tokens.length === 0) {
+      return <div>No selected tokens</div>;
     }
-
-    return <div>No active token</div>
+    
+    return (
+      <ul>
+        {tokens.map(token => (
+          <li key={token.id}>{token.createDate} - {token.id} <button onClick={() => this.finishToken(token)}>Finish</button></li>
+        ))}
+      </ul>
+    );
   }
 
   render() {
-    const [nextToken, ...queue] = this.state.queue;
+    const { queue, selected } = this.state;
 
     return (
       <div className="App">
@@ -68,13 +79,12 @@ class App extends Component {
           <button onClick={() => this.createToken()}>Create Token</button>
           <button onClick={() => this.next()}>Next</button>
         </p>
-        {this.showActiveToken(nextToken)}
+        {this.showSelectedTokens(selected)}
         <table>
           <thead>
             <tr>
               <th>Id</th>
               <th>Date</th>
-              <th>Active</th>
             </tr>
           </thead>
           <tbody>

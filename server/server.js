@@ -6,7 +6,7 @@ const server = Http.createServer();
 const io = SocketIO(server);
 const queueService = new QueueService();
 
-const emitUpdateQueue = (socket = io) => socket.emit('queue-updated', queueService.getQueue(false));
+const emitUpdateQueue = (socket = io) => socket.emit('queue-updated', queueService.getStructure());
 
 io.on('connection', socket => {
   console.log('-> connected');
@@ -29,8 +29,18 @@ io.on('connection', socket => {
     emitUpdateQueue();
   });
 
+  socket.on('finish-token', tokenId => {
+    queueService.finish(tokenId);
+    emitUpdateQueue();
+  });
+
   socket.on('next-token', () => {
-    queueService.next();
+    const nextToken = queueService.next();
+
+    if (nextToken) {
+      socket.emit('token-received', nextToken);
+    }
+
     emitUpdateQueue();
   });
 });

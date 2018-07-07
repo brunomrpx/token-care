@@ -1,9 +1,11 @@
 const Token = require('./token');
 
 class QueueService {
-  constructor(counter = 0, queue = []) {
+  constructor(counter = 0, queue = [], finished = [], selected = []) {
     this.counter = counter;
     this.queue = queue;
+    this.finished = finished;
+    this.selected = selected;
   }
 
   createToken() {
@@ -13,26 +15,32 @@ class QueueService {
     return token;
   }
 
-  getQueue(showAll = true) {
-    let queue = this.queue;
+  getStructure() {
+    const { queue, finished, selected } = this;
 
-    if (!showAll) {
-      queue = queue.filter(token => token.active);
-    }
+    return { queue, finished, selected};
+  }
 
-    return queue;
+  finish(tokenId) {
+    const tokenIndex = this.selected.findIndex(token => token.id === tokenId);
+    const token = this.selected[tokenIndex];
+
+    token.finish();
+
+    this.selected.splice(tokenIndex, 1);
+    this.finished.push(token);
+
+    return token;
   }
 
   next() {
-    const firstToken = this.queue.find(token => token.active);
+    const nextToken = this.queue.shift() || null;
 
-    if (!firstToken) {
-      return null;
+    if (nextToken) {
+      this.selected.push(nextToken);
     }
 
-    firstToken.active = false;
-
-    return firstToken;
+    return nextToken;
   }
 
   deleteToken(id) {

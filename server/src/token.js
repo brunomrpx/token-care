@@ -1,8 +1,12 @@
 class Token {
-  constructor(id, active = true, date = new Date()) {
+  constructor(id, createDate = new Date()) {
     this.id = id;
-    this.active = active;
-    this.date = date;
+    this.createDate = createDate;
+    this.finishDate = null;
+  }
+
+  finish() {
+    this.finishDate = new Date();
   }
 }
 
