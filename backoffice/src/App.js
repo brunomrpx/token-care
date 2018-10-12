@@ -14,7 +14,7 @@ class App extends Component {
       queue: [],
       finished: [],
       selected: [],
-      activeTab: Types.Queue
+      activeTab: Types.Selected
     };
 
     this.socket = io.connect('http://localhost:3000');
@@ -44,13 +44,33 @@ class App extends Component {
     this.setState({ activeTab: name });
   }
 
-  render() {
+  getContentMap() {
     const { queue, selected, finished } = this.state;
-    const contentMap = {
-      [Types.Queue]: { title: 'Queue', tokens: queue },
-      [Types.Finished]: { title: 'Finished', tokens: finished },
-      [Types.Selected]: { title: 'Selected', tokens: selected }
-    };
+
+    return new Map([
+      [Types.Selected, { title: 'Selected', tokens: selected }],
+      [Types.Queue, { title: 'Queue', tokens: queue }],
+      [Types.Finished, { title: 'Finished', tokens: finished }],
+    ]);
+  }
+
+  getTabItems(contentMap) {
+    const tabItems = [];
+
+    for (const [key, value] of contentMap.entries()) {
+      tabItems.push(
+        <li key={key} className={this.state.activeTab === key ? 'is-active' : ''} onClick={() => this.selectTab(key)}>
+          <a>{value.title}</a>
+        </li>
+      );
+    }
+
+    return tabItems;
+  }
+
+  render() {
+    const contentMap = this.getContentMap();
+    const tabItems = this.getTabItems(contentMap);
 
     return (
       <div>
@@ -68,15 +88,9 @@ class App extends Component {
             </div>
           </div>
           <div className="tabs">
-            <ul>
-              {Object.keys(contentMap).map(type => (
-                <li key={type} className={String(this.state.activeTab) === type ? 'is-active' : ''} onClick={() => this.selectTab(type)}>
-                  <a>{contentMap[type].title}</a>
-                </li>
-              ))}
-            </ul>
+            <ul>{tabItems}</ul>
           </div>
-          <TokenGrid type={this.state.activeTab} tokens={contentMap[this.state.activeTab].tokens} onFinish={(token) => this.finishToken(token)}></TokenGrid>
+          <TokenGrid type={this.state.activeTab} tokens={contentMap.get(this.state.activeTab).tokens} onFinish={(token) => this.finishToken(token)}></TokenGrid>
         </div>
       </div>
     );
