@@ -1,18 +1,23 @@
 import React, { Component } from 'react';
-
-export const Types = {
-  Queue: 0,
-  Selected: 1,
-  Finished: 2
-};
+import { Types } from './Token';
 
 class TokenGrid extends Component {
 
   static defaultProps = {
     onFinish: () => {},
-    type: Types.Queue,
+    type: Types.Selected,
     tokens: []
   }; 
+
+  constructor(props) {
+    super(props);
+
+    this.renderFunctions = {
+      [Types.Queue]: this.getQueueGrid,
+      [Types.Selected]: this.getSelectedGrid,
+      [Types.Finished]: this.getFinishedGrid
+    };
+  }
 
   getSelectedGrid(tokens) {
     return (
@@ -84,13 +89,7 @@ class TokenGrid extends Component {
   }
 
   render() {
-    const renderFunctions = {
-      [Types.Queue]: this.getQueueGrid,
-      [Types.Selected]: this.getSelectedGrid,
-      [Types.Finished]: this.getFinishedGrid
-    };
-
-    const renderFunctionForType = renderFunctions[this.props.type].bind(this);
+    const renderFunctionForType = this.renderFunctions[this.props.type].bind(this);
 
     return renderFunctionForType(this.props.tokens);
   }
