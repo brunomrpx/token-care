@@ -4,6 +4,7 @@ const TokenSocketEvents = {
   Create: 'create-token',
   Next: 'next-token',
   Finish: 'finish-token',
+  Delete: 'delete-token',
   Updated: 'queue-updated',
   Connect: 'connect'
 };
@@ -33,5 +34,9 @@ export class SocketService {
 
   finish(token) {
     this.socket.emit(TokenSocketEvents.Finish, token.id);
+  }
+
+  delete(token) {
+    this.socket.emit(TokenSocketEvents.Delete, token.id);
   }
 }

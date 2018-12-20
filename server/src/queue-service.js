@@ -43,14 +43,22 @@ class QueueService {
     return nextToken;
   }
 
+  revokeToken(id) {
+    return this.removeTokenFrom(this.queue, id);
+  }
+
   deleteToken(id) {
-    const tokenIndex = this.queue.findIndex(token => token.id === id);
+    return this.removeTokenFrom(this.finished, id);
+  }
+
+  removeTokenFrom(list, id) {
+    const tokenIndex = list.findIndex(token => token.id === id);
 
     if (tokenIndex === -1) {
-      throw new Error('Token not found');
+      throw new Error(`Token with id ${id} not found`);
     }
 
-    const [token] = this.queue.splice(tokenIndex, 1);
+    const [token] = list.splice(tokenIndex, 1);
 
     return token;
   }

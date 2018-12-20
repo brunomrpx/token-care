@@ -19,7 +19,25 @@ class TokenGrid extends Component {
     };
   }
 
+  getEmptyListRow({ colSpan } = { colSpan: 3}) {
+    return (
+      <tr>
+        <td colSpan={colSpan} style={{ textAlign: 'center' }}>Empty list</td>
+      </tr>
+    );
+  }
+
   getSelectedGrid(tokens) {
+    const renderRows = () => tokens.map(token => (
+      <tr key={token.id}>
+        <td>{token.id}</td>
+        <td>{token.createDate}</td>
+        <td>
+          <button className="button is-warning" onClick={() => this.props.onFinish(token)}>Finish</button>
+        </td>
+      </tr>
+    ));
+
     return (
       <table className="table" style={{ width: '100%' }}>
         <thead>
@@ -30,21 +48,20 @@ class TokenGrid extends Component {
           </tr>
         </thead>
         <tbody>
-          {tokens.map(token => (
-            <tr key={token.id}>
-              <td>{token.id}</td>
-              <td>{token.createDate}</td>
-              <td>
-                <button className="button is-warning" onClick={() => this.props.onFinish(token)}>Finish</button>
-              </td>
-            </tr>
-          ))}
+          {tokens.length > 0 ? renderRows() : this.getEmptyListRow({ colSpan: 3 })}
         </tbody>
       </table>
     );
   }
 
   getQueueGrid(tokens) {
+    const renderRows = () => tokens.map(token => (
+      <tr key={token.id}>
+        <td>{token.id}</td>
+        <td>{token.createDate}</td>
+      </tr>
+    ));
+
     return (
       <table className="table" style={{ width: '100%' }}>
         <thead>
@@ -54,18 +71,24 @@ class TokenGrid extends Component {
           </tr>
         </thead>
         <tbody>
-          {tokens.map(token => (
-            <tr key={token.id}>
-              <td>{token.id}</td>
-              <td>{token.createDate}</td>
-            </tr>
-          ))}
+          {tokens.length > 0 ? renderRows() : this.getEmptyListRow({ colSpan: 2 })}
         </tbody>
       </table>
     );
   }
 
   getFinishedGrid(tokens) {
+    const renderRows = () => tokens.map(token => (
+      <tr key={token.id}>
+        <td>{token.id}</td>
+        <td>{token.createDate}</td>
+        <td>{token.finishDate}</td>
+        <td>
+          <button className="button is-danger" onClick={() => this.props.onDelete(token)}>Delete</button>
+        </td>
+      </tr>
+    ));
+
     return (
       <table className="table" style={{ width: '100%' }}>
         <thead>
@@ -73,16 +96,11 @@ class TokenGrid extends Component {
             <th>Id</th>
             <th>Created Date</th>
             <th>Finished Date</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          {tokens.map(token => (
-            <tr key={token.id}>
-              <td>{token.id}</td>
-              <td>{token.createDate}</td>
-              <td>{token.finishDate}</td>
-            </tr>
-          ))}
+          {tokens.length > 0 ? renderRows() : this.getEmptyListRow({ colSpan: 4 })}
         </tbody>
       </table>
     );

@@ -6,6 +6,7 @@ class TokenTabs extends Component {
 
   static defaultProps = {
     onFinish: () => {},
+    onDelete: () => {},
     structure: {
       selected: [],
       queue: [],
@@ -58,7 +59,11 @@ class TokenTabs extends Component {
         <div className="tabs">
           <ul>{tabItems}</ul>
         </div>
-        <TokenGrid type={this.state.activeTab} tokens={contentMap.get(this.state.activeTab).tokens} onFinish={(token) => this.props.onFinish(token)} />
+        <TokenGrid 
+          type={this.state.activeTab} 
+          tokens={contentMap.get(this.state.activeTab).tokens} 
+          onFinish={(token) => this.props.onFinish(token)} 
+          onDelete={(token) => this.props.onDelete(token)} />
       </div>
     );
   }

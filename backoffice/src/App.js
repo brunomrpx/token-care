@@ -28,7 +28,7 @@ class App extends Component {
   render() {
     return (
       <div>
-        <div className="container" style={{ paddingTop: '10px' }}>
+        <div className="container is-fluid" style={{ padding: '10px 10px 10px' }}>
           <div className="columns">
             <div className="column">
               <div className="field is-grouped">
@@ -41,7 +41,10 @@ class App extends Component {
               </div>
             </div>
           </div>
-          <TokenTabs structure={this.state} onFinish={(token) => this.socketService.finish(token)} />
+          <TokenTabs 
+            structure={this.state} 
+            onFinish={(token) => this.socketService.finish(token)} 
+            onDelete={(token) => this.socketService.delete(token)} />
         </div>
       </div>
     );

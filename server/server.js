@@ -23,9 +23,9 @@ io.on('connection', socket => {
   });
 
   socket.on('revoke-token', token => {
-    const deleted = queueService.deleteToken(token.id);
+    const revoked = queueService.revokeToken(token.id);
 
-    socket.emit('token-revoked', deleted);
+    socket.emit('token-revoked', revoked);
     emitUpdateQueue();
   });
 
@@ -40,6 +40,12 @@ io.on('connection', socket => {
     if (nextToken) {
       socket.emit('token-received', nextToken);
     }
+
+    emitUpdateQueue();
+  });
+
+  socket.on('delete-token', tokenId => {
+    queueService.deleteToken(tokenId);
 
     emitUpdateQueue();
   });
