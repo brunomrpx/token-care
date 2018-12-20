@@ -17,8 +17,16 @@ class QueueService {
 
   getStructure() {
     const { queue, finished, selected } = this;
+    const averageWaitingTime = this.getAverageWaitingTime();
 
-    return { queue, finished, selected};
+    return { queue, finished, selected, averageWaitingTime };
+  }
+
+  getAverageWaitingTime() {
+    const joinedLists = [...this.selected, ...this.finished];
+    const sumWaitingTime = joinedLists.reduce((prev, next) => prev += next.waitingTime, 0);
+
+    return sumWaitingTime / joinedLists.length;
   }
 
   finish(tokenId) {
@@ -37,6 +45,7 @@ class QueueService {
     const nextToken = this.queue.shift() || null;
 
     if (nextToken) {
+      nextToken.select();
       this.selected.push(nextToken);
     }
 
