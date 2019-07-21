@@ -23,9 +23,9 @@ class App extends Component {
   }
 
   millisecondsToTime(milliseconds) {
-    let seconds = parseInt((milliseconds / 1000) % 60);
-    let minutes = parseInt((milliseconds / (1000 * 60)) % 60);
-    let hours = parseInt((milliseconds / (1000 * 60 * 60)) % 24);
+    let seconds = parseInt((milliseconds / 1000) % 60, 10);
+    let minutes = parseInt((milliseconds / (1000 * 60)) % 60, 10);
+    let hours = parseInt((milliseconds / (1000 * 60 * 60)) % 24, 10);
   
     hours = String(hours).padStart(2, 0);
     minutes = String(minutes).padStart(2, 0);
