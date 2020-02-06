@@ -7,7 +7,8 @@ import { Queue } from './src/Queue';
 import { MyToken } from './src/MyToken';
 import { NewToken } from './src/NewToken';
 
-const socketUrl = process.env.SOCKET_URL;
+// default socket URL is the IP that Android emulator uses for local machine
+const socketUrl = process.env.SOCKET_URL || "http://10.0.2.2:3000";
 
 export default class App extends React.Component {
   constructor(props) {
@@ -26,7 +27,7 @@ export default class App extends React.Component {
     this.socket.on('connect', () => this.setState({ loading: false }));
     this.socket.on('token-created', token => this.saveMyToken(token));
     this.socket.on('token-revoked', () => this.deleteMyToken());
-    this.socket.on('queue-updated', queue => this.updateQueue(queue));
+    this.socket.on('queue-updated', structure => this.updateQueue(structure.queue));
 
     this.restoreState();
   }
@@ -66,6 +67,8 @@ export default class App extends React.Component {
 
   getContentView() {
     let actionView = <NewToken onNewToken={() => this.emitCreateToken()} />;
+
+    console.log('current state: ', this.state);
 
     if (this.state.myToken) {
       actionView = <MyToken token={this.state.myToken} onRevokeToken={() => this.emitRevokeToken()} />;

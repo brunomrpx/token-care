@@ -14,12 +14,6 @@ export const themeStyle = StyleSheet.create({
     paddingHorizontal: 20,
     width: '100%'
   },
-  newTokenBtn: {
-    backgroundColor: '#008CFF'
-  },
-  revokeTokenBtn: {
-    backgroundColor: '#FF3333',
-  },
   yourToken: {
     fontSize: 30,
     textAlign: 'center',

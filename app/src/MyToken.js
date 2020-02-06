@@ -8,8 +8,8 @@ export class MyToken extends React.Component {
     return (
       <View>
         <Text style={themeStyle.yourToken}>Your token is: {this.props.token.id}</Text>
-        <View style={[themeStyle.btn, themeStyle.revokeTokenBtn]}>
-          <Button title={'Revoke Token'} style={{ fontSize: 20 }} color={'white'} onPress={() => this.props.onRevokeToken()} />
+        <View style={[themeStyle.btn]}>
+          <Button title={'Revoke Token'} style={{ fontSize: 20 }} color={'red'} onPress={() => this.props.onRevokeToken()} />
         </View>
       </View>
     )
