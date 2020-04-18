@@ -29,8 +29,8 @@ class TokenGrid extends Component {
 
   getSelectedGrid(tokens) {
     const renderRows = () => tokens.map(token => (
-      <tr key={token.id}>
-        <td>{token.id}</td>
+      <tr key={token._id}>
+        <td>{token._id}</td>
         <td>{token.createDate}</td>
         <td>
           <button className="button is-warning" onClick={() => this.props.onFinish(token)}>Finish</button>
@@ -56,8 +56,8 @@ class TokenGrid extends Component {
 
   getQueueGrid(tokens) {
     const renderRows = () => tokens.map(token => (
-      <tr key={token.id}>
-        <td>{token.id}</td>
+      <tr key={token._id}>
+        <td>{token._id}</td>
         <td>{token.createDate}</td>
       </tr>
     ));
@@ -79,8 +79,8 @@ class TokenGrid extends Component {
 
   getFinishedGrid(tokens) {
     const renderRows = () => tokens.map(token => (
-      <tr key={token.id}>
-        <td>{token.id}</td>
+      <tr key={token._id}>
+        <td>{token._id}</td>
         <td>{token.createDate}</td>
         <td>{token.finishDate}</td>
         <td>

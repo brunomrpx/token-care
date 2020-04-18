@@ -10,6 +10,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "socket.io": "^2.0.4"
+    "socket.io": "^2.0.4",
+    "mongoose": "^5.9.9",
+    "nodemon": "^2.0.3"
   }
 }

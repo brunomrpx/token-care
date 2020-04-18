@@ -6,48 +6,41 @@ const server = Http.createServer();
 const io = SocketIO(server);
 const queueService = new QueueService();
 
-const emitUpdateQueue = (socket = io) => socket.emit('queue-updated', queueService.getStructure());
-
-io.on('connection', socket => {
+io.on('connection', async socket => {
   console.log('-> connected');
 
-  emitUpdateQueue(socket);
+  socket.emit('queue-updated', await queueService.getStructure())
 
   socket.on('disconnect', () => console.log('-> disconnected'));
 
-  socket.on('create-token', () => {
-    const token = queueService.createToken();
-
-    socket.emit('token-created', token);
-    emitUpdateQueue();
+  socket.on('create-token', async () => {
+    socket.emit('token-created', await queueService.createToken());
+    socket.emit('queue-updated', await queueService.getStructure())
   });
 
-  socket.on('revoke-token', token => {
-    const revoked = queueService.revokeToken(token.id);
-
-    socket.emit('token-revoked', revoked);
-    emitUpdateQueue();
+  socket.on('revoke-token', async token => {
+    socket.emit('token-revoked', await queueService.revokeToken(token.id));
+    socket.emit('queue-updated', await queueService.getStructure())
   });
 
-  socket.on('finish-token', tokenId => {
-    queueService.finish(tokenId);
-    emitUpdateQueue();
+  socket.on('finish-token', async tokenId => {
+    await queueService.finish(tokenId);
+    socket.emit('queue-updated', await queueService.getStructure())
   });
 
-  socket.on('next-token', () => {
-    const nextToken = queueService.next();
+  socket.on('next-token', async () => {
+    const nextToken = await queueService.next();
 
     if (nextToken) {
       socket.emit('token-received', nextToken);
     }
 
-    emitUpdateQueue();
+    socket.emit('queue-updated', await queueService.getStructure())
   });
 
-  socket.on('delete-token', tokenId => {
-    queueService.deleteToken(tokenId);
-
-    emitUpdateQueue();
+  socket.on('delete-token', async tokenId => {
+    await queueService.deleteToken(tokenId);
+    socket.emit('queue-updated', await queueService.getStructure())
   });
 });
 

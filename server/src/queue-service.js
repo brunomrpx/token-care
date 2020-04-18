@@ -1,75 +1,89 @@
-const Token = require('./token');
+// TODO: move this to a dbconnection file
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://mongodb:27017/db', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const Token = mongoose.model('Token', {
+  createDate: Date,
+  finishDate: Date,
+  selectedDate: Date,
+  waitingTime: Number,
+  deleted: Boolean
+});
 
 class QueueService {
-  constructor(counter = 0, queue = [], finished = [], selected = []) {
-    this.counter = counter;
-    this.queue = queue;
-    this.finished = finished;
-    this.selected = selected;
+
+  async createToken() {
+    const token = new Token({ createDate: new Date(), deleted: false });
+    const newToken = await token.save();
+
+    return newToken;
   }
 
-  createToken() {
-    const token = new Token(++this.counter);
-    this.queue.push(token);
+  async getStructure() {
+    // this._delete_all();
 
-    return token;
-  }
+    const tokens = await Token.find();
+    const finished = [];
+    const selected = [];
+    const queue = [];
+    let sumWaitingTime = 0;
+    let countWaitingTime = 0
 
-  getStructure() {
-    const { queue, finished, selected } = this;
-    const averageWaitingTime = this.getAverageWaitingTime();
+    tokens.forEach(token => {
+      if (token.finishDate) {
+        sumWaitingTime += token.waitingTime;
+        countWaitingTime++;
+        return !token.deleted && finished.push(token);
+      }
+      if (!token.finishDate && token.selectedDate) {
+        sumWaitingTime += token.waitingTime;
+        countWaitingTime++;
+        return selected.push(token);
+      }
+      queue.push(token);
+    });
 
+    const averageWaitingTime = sumWaitingTime / countWaitingTime;
     return { queue, finished, selected, averageWaitingTime };
   }
 
-  getAverageWaitingTime() {
-    const joinedLists = [...this.selected, ...this.finished];
-    const sumWaitingTime = joinedLists.reduce((prev, next) => prev += next.waitingTime, 0);
+  async finish(tokenId) {
+    const token = await Token.findOne({ _id: tokenId });
+    token.finishDate = new Date();
 
-    return sumWaitingTime / joinedLists.length;
+    return await token.save();
   }
 
-  finish(tokenId) {
-    const tokenIndex = this.selected.findIndex(token => token.id === tokenId);
-    const token = this.selected[tokenIndex];
-
-    token.finish();
-
-    this.selected.splice(tokenIndex, 1);
-    this.finished.push(token);
-
-    return token;
-  }
-
-  next() {
-    const nextToken = this.queue.shift() || null;
+  async next() {
+    const query = { finishDate: { $exists: false }, selectedDate: { $exists: false } };
+    const nextToken = await Token.findOne(query).sort('-created_at').exec();
 
     if (nextToken) {
-      nextToken.select();
-      this.selected.push(nextToken);
+      nextToken.selectedDate = new Date();
+      nextToken.waitingTime = nextToken.selectedDate.getTime() - nextToken.createDate.getTime();
+      await nextToken.save();
     }
 
     return nextToken;
   }
 
-  revokeToken(id) {
-    return this.removeTokenFrom(this.queue, id);
-  }
-
-  deleteToken(id) {
-    return this.removeTokenFrom(this.finished, id);
-  }
-
-  removeTokenFrom(list, id) {
-    const tokenIndex = list.findIndex(token => token.id === id);
-
-    if (tokenIndex === -1) {
-      throw new Error(`Token with id ${id} not found`);
-    }
-
-    const [token] = list.splice(tokenIndex, 1);
-
+  async revokeToken(id) {
+    // TODO: review this
+    const token = await Token.findById(id);
+    token.delete();
     return token;
+  }
+
+  async deleteToken(id) {
+    const token = await Token.findById(id);
+    token.deleted = true;
+    await token.save();
+  }
+
+  // --- debug helpers
+  async _delete_all() {
+    const tokens = await Token.find();
+    tokens.forEach(token => token.delete());
   }
 }
 

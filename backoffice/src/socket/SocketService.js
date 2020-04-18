@@ -33,10 +33,10 @@ export class SocketService {
   }
 
   finish(token) {
-    this.socket.emit(TokenSocketEvents.Finish, token.id);
+    this.socket.emit(TokenSocketEvents.Finish, token._id);
   }
 
   delete(token) {
-    this.socket.emit(TokenSocketEvents.Delete, token.id);
+    this.socket.emit(TokenSocketEvents.Delete, token._id);
   }
 }
