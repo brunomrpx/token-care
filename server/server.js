@@ -18,8 +18,8 @@ io.on('connection', async socket => {
     socket.emit('queue-updated', await queueService.getStructure())
   });
 
-  socket.on('revoke-token', async token => {
-    socket.emit('token-revoked', await queueService.revokeToken(token.id));
+  socket.on('revoke-token', async tokenId => {
+    socket.emit('token-revoked', await queueService.revokeToken(tokenId));
     socket.emit('queue-updated', await queueService.getStructure())
   });
 

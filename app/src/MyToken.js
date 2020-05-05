@@ -7,7 +7,7 @@ export class MyToken extends React.Component {
   render() {
     return (
       <View>
-        <Text style={themeStyle.yourToken}>Your token is: {this.props.token._id}</Text>
+        <Text style={themeStyle.yourToken}>Your token is: {"\n"}{this.props.token._id}</Text>
         <View style={[themeStyle.btn]}>
           <Button title={'Revoke Token'} style={{ fontSize: 20 }} color={'red'} onPress={() => this.props.onRevokeToken()} />
         </View>

@@ -43,7 +43,7 @@ export default class App extends React.Component {
   }
 
   emitRevokeToken() {
-    this.socket.emit('revoke-token', this.state.myToken);
+    this.socket.emit('revoke-token', this.state.myToken._id);
   }
 
   updateQueue(queue) {
