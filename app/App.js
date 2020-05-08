@@ -17,7 +17,10 @@ export default class App extends React.Component {
     this.state = {
       loading: true,
       queue: [],
-      myToken: null
+      selected: [],
+      finished: [],
+      myToken: null,
+      averageWaitingTime: null,
     };
 
     this.socket = SocketIOClient(socketUrl, {
@@ -27,7 +30,7 @@ export default class App extends React.Component {
     this.socket.on('connect', () => this.setState({ loading: false }));
     this.socket.on('token-created', token => this.saveMyToken(token));
     this.socket.on('token-revoked', () => this.deleteMyToken());
-    this.socket.on('queue-updated', structure => this.updateQueue(structure.queue));
+    this.socket.on('queue-updated', structure => this.refreshQueue(structure));
 
     this.restoreState();
   }
@@ -46,8 +49,8 @@ export default class App extends React.Component {
     this.socket.emit('revoke-token', this.state.myToken._id);
   }
 
-  updateQueue(queue) {
-    this.setState({ queue });
+  refreshQueue({ queue, selected, finished, averageWaitingTime }) {
+    this.setState({ queue, selected, finished, averageWaitingTime });
   }
 
   deleteMyToken() {
@@ -71,14 +74,27 @@ export default class App extends React.Component {
     console.log('current state: ', this.state);
 
     if (this.state.myToken) {
-      actionView = <MyToken token={this.state.myToken} onRevokeToken={() => this.emitRevokeToken()} />;
+      const isYourTurn = this.state.selected.some(token => token._id == this.state.myToken._id);
+      const isFinished = this.state.finished.some(token => token._id == this.state.myToken._id && !!token.finishDate);
+      const [nextItemOfQueue] = this.state.queue;
+      const isYouNext = nextItemOfQueue && nextItemOfQueue._id === this.state.myToken._id;
+
+      actionView =
+        <MyToken
+            token={this.state.myToken}
+            isYourTurn={isYourTurn}
+            isYouNext={isYouNext}
+            isFinished={isFinished}
+            onClearToken={() => this.deleteMyToken()}
+            onRevokeToken={() => this.emitRevokeToken()}
+        />;
     }
 
     return (
       <View style={{ width: '100%' }}>
         { actionView }
         <View style={themeStyle.tokenQueueContainer}>
-          <Queue queue={this.state.queue} />
+          <Queue queue={this.state.queue} selected={this.state.selected} averageWaitingTime={this.state.averageWaitingTime} />
         </View>
       </View>
     );

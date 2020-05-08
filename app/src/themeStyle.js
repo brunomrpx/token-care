@@ -19,6 +19,18 @@ export const themeStyle = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20
   },
+  yourTurn: {
+    fontSize: 30,
+    textAlign: 'center',
+    marginBottom: 20,
+    color: 'green'
+  },
+  youAreNext: {
+    fontSize: 30,
+    textAlign: 'center',
+    marginBottom: 20,
+    color: 'orange'
+  },
   tokenQueueContainer: {
     marginRight: 'auto',
     marginVertical: 20
