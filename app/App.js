@@ -6,6 +6,7 @@ import { themeStyle } from './src/themeStyle';
 import { Queue } from './src/Queue';
 import { MyToken } from './src/MyToken';
 import { NewToken } from './src/NewToken';
+import PushNotificationManager from './src/PushNotificationManager';
 
 // default socket URL is the IP that Android emulator uses for local machine
 const socketUrl = process.env.SOCKET_URL || "http://10.0.2.2:3000";
@@ -32,6 +33,10 @@ export default class App extends React.Component {
     this.socket.on('token-revoked', () => this.deleteMyToken());
     this.socket.on('queue-updated', structure => this.refreshQueue(structure));
 
+    // reset token state
+    // this.emitRevokeToken();
+    // this.deleteMyToken();
+
     this.restoreState();
   }
 
@@ -41,8 +46,9 @@ export default class App extends React.Component {
     this.setState({ myToken });
   }
 
-  emitCreateToken() {
-    this.socket.emit('create-token');
+  async emitCreateToken() {
+    const deviceId = await AsyncStorage.getItem('deviceId');
+    this.socket.emit('create-token', deviceId);
   }
 
   emitRevokeToken() {
@@ -106,6 +112,7 @@ export default class App extends React.Component {
     return (
       <View style={themeStyle.mainContainer}>
         {this.state.loading ? loadingView : this.getContentView()}
+        <PushNotificationManager />
       </View>
     );
   }

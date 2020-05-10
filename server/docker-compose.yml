@@ -2,7 +2,7 @@ version: "2"
 services:
   app:
     container_name: app
-    command: npx nodemon server.js
+    command: npx nodemon -L server.js
     build: .
     volumes:
       - .:/app

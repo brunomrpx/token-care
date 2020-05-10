@@ -7,13 +7,19 @@ const Token = mongoose.model('Token', {
   finishDate: Date,
   selectedDate: Date,
   waitingTime: Number,
-  deleted: Boolean
+  deleted: Boolean,
+  deviceId: String,
 });
 
 class QueueService {
 
-  async createToken() {
-    const token = new Token({ createDate: new Date(), deleted: false });
+  async createToken(deviceId) {
+    const token = new Token({
+      deviceId,
+      createDate: new Date(),
+      deleted: false,
+    });
+
     const newToken = await token.save();
 
     return newToken;
