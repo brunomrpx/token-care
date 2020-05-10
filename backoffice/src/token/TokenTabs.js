@@ -5,8 +5,8 @@ import { Types } from './Token';
 class TokenTabs extends Component {
 
   static defaultProps = {
-    onFinish: () => {},
-    onDelete: () => {},
+    onFinish: () => { },
+    onDelete: () => { },
     structure: {
       selected: [],
       queue: [],
@@ -40,9 +40,11 @@ class TokenTabs extends Component {
     const tabItems = [];
 
     for (const [key, value] of contentMap.entries()) {
+      const activeClass = this.state.activeTab === key ? 'active' : '';
+
       tabItems.push(
-        <li key={key} className={this.state.activeTab === key ? 'is-active' : ''} onClick={() => this.selectTab(key)}>
-          <a>{value.title}</a>
+        <li key={key} className="nav-item " onClick={() => this.selectTab(key)}>
+          <a class={"nav-link " + activeClass} href="#">{value.title}</a>
         </li>
       );
     }
@@ -56,13 +58,11 @@ class TokenTabs extends Component {
 
     return (
       <div>
-        <div className="tabs">
-          <ul>{tabItems}</ul>
-        </div>
-        <TokenGrid 
-          type={this.state.activeTab} 
-          tokens={contentMap.get(this.state.activeTab).tokens} 
-          onFinish={(token) => this.props.onFinish(token)} 
+        <ul className="nav nav-tabs mb-2">{tabItems}</ul>
+        <TokenGrid
+          type={this.state.activeTab}
+          tokens={contentMap.get(this.state.activeTab).tokens}
+          onFinish={(token) => this.props.onFinish(token)}
           onDelete={(token) => this.props.onDelete(token)} />
       </div>
     );

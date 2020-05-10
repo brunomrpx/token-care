@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import 'bulma/css/bulma.css'
+import 'bootstrap/dist/css/bootstrap.css';
 import './App.css';
 
 import TokenTabs from './token/TokenTabs';
@@ -26,11 +26,11 @@ class App extends Component {
     let seconds = parseInt((milliseconds / 1000) % 60, 10);
     let minutes = parseInt((milliseconds / (1000 * 60)) % 60, 10);
     let hours = parseInt((milliseconds / (1000 * 60 * 60)) % 24, 10);
-  
+
     hours = String(hours).padStart(2, 0);
     minutes = String(minutes).padStart(2, 0);
     seconds = String(seconds).padStart(2, 0);
-  
+
     return `${hours}:${minutes}:${seconds}`;
   }
 
@@ -40,25 +40,23 @@ class App extends Component {
 
   render() {
     return (
-      <div>
-        <div className="container is-fluid" style={{ padding: '10px 10px 10px' }}>
-          <div className="columns">
-            <div className="column">
-              <div className="field is-grouped">
-                <p className="control">
-                  <button className="button is-primary" onClick={() => this.socketService.create()}>Create Token</button>
-                </p>
-                <p className="control">
-                  <button className="button is-info" onClick={() => this.socketService.next()}>Next</button>
-                </p>
-              </div>
-              <div className="is-pulled-right">Average waiting time: {this.millisecondsToTime(this.state.averageWaitingTime)}</div>
-            </div>
+      <div className="container-fluid p-5">
+        <div className="row mb-5">
+          <div className="col">
+            <button className="btn btn-primary mr-2" onClick={() => this.socketService.create()}>Create Token</button>
+            <button className="btn btn-success" onClick={() => this.socketService.next()}>Next</button>
           </div>
-          <TokenTabs 
-            structure={this.state} 
-            onFinish={(token) => this.socketService.finish(token)} 
-            onDelete={(token) => this.socketService.delete(token)} />
+          <div className="col text-right">
+            Average waiting time: {this.millisecondsToTime(this.state.averageWaitingTime)}
+          </div>
+        </div>
+        <div className="row">
+          <div className="col">
+            <TokenTabs
+              structure={this.state}
+              onFinish={(token) => this.socketService.finish(token)}
+              onDelete={(token) => this.socketService.delete(token)} />
+          </div>
         </div>
       </div>
     );

@@ -4,10 +4,10 @@ import { Types } from './Token';
 class TokenGrid extends Component {
 
   static defaultProps = {
-    onFinish: () => {},
+    onFinish: () => { },
     type: Types.Selected,
     tokens: []
-  }; 
+  };
 
   constructor(props) {
     super(props);
@@ -19,7 +19,7 @@ class TokenGrid extends Component {
     };
   }
 
-  getEmptyListRow({ colSpan } = { colSpan: 3}) {
+  getEmptyListRow({ colSpan } = { colSpan: 3 }) {
     return (
       <tr>
         <td colSpan={colSpan} style={{ textAlign: 'center' }}>Empty list</td>
@@ -33,13 +33,13 @@ class TokenGrid extends Component {
         <td>{token._id}</td>
         <td>{token.createDate}</td>
         <td>
-          <button className="button is-warning" onClick={() => this.props.onFinish(token)}>Finish</button>
+          <button className="btn btn-warning" onClick={() => this.props.onFinish(token)}>Finish</button>
         </td>
       </tr>
     ));
 
     return (
-      <table className="table" style={{ width: '100%' }}>
+      <table className="table table-striped table-borderless" style={{ width: '100%' }}>
         <thead>
           <tr>
             <th>Id</th>
@@ -63,7 +63,7 @@ class TokenGrid extends Component {
     ));
 
     return (
-      <table className="table" style={{ width: '100%' }}>
+      <table className="table table-striped table-borderless" style={{ width: '100%' }}>
         <thead>
           <tr>
             <th>Id</th>
@@ -84,13 +84,13 @@ class TokenGrid extends Component {
         <td>{token.createDate}</td>
         <td>{token.finishDate}</td>
         <td>
-          <button className="button is-danger" onClick={() => this.props.onDelete(token)}>Delete</button>
+          <button className="btn btn-danger" onClick={() => this.props.onDelete(token)}>Delete</button>
         </td>
       </tr>
     ));
 
     return (
-      <table className="table" style={{ width: '100%' }}>
+      <table className="table table-striped table-borderless" style={{ width: '100%' }}>
         <thead>
           <tr>
             <th>Id</th>
